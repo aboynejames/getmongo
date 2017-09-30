@@ -10,11 +10,12 @@
 */
 var util = require('util');
 var events = require("events");
+var MongoUtil = require("./mongo-utility.js");
 
 var heartStatistics = function() {
 console.log('heart statis live');
 	events.EventEmitter.call(this);
-
+  this.liveMongo = new MongoUtil();
 
 };
 
@@ -29,7 +30,7 @@ util.inherits(heartStatistics, events.EventEmitter);
 * @method average
 *
 */
-heartStatistics.prototype.average = function(dayBatch) {
+heartStatistics.prototype.average = function(dayStart, dayBatch) {
 
   //sum the frequency and div   (realworld missing data gaps etc needs Data science)
   var sum = dayBatch.reduce((a, b) => a + b, 0);
@@ -41,8 +42,15 @@ console.log(lengthData);
   var averageHRday = sum/lengthData;
 console.log('average per 24 hours');
 console.log(averageHRday);
+  var cover = lengthData/86400;
+  // build JSON object using Knowledge Transaction LKN standards
+  var dailyHRaverage = {};
+  dailyHRaverage.daystart = dayStart;
+  dailyHRaverage.hravg = 1;//averageHRday;
+  dailyHRaverage.cover = cover;
   // save to personal decentralize crypto storage
-
+	//JSONiseData = JSON.stringify(dailyHRaverage);
+  this.liveMongo.insertAverageCollection(dailyHRaverage);
 
 };
 
@@ -55,8 +63,8 @@ heartStatistics.prototype.dayBatch = function(dataIN) {
 console.log('HR DATA IN');
 console.log(dataIN);
   var localthis = this;
-  var baseDay = new Date("2017-08-18T00:00:01+0000");//Date.UTC(2017, 08, 18, 0, 0, 0));    // 18 August 2018
-  var daystoBatch = 60;
+  var baseDay = new Date("2017-09-26T00:00:01+0000");//Date.UTC(2017, 08, 18, 0, 0, 0));    // 18 August 2018
+  var daystoBatch = 4;
   var batchData = [];
   var day;
 
@@ -77,14 +85,15 @@ console.log('yes in this 24 hour period');
       }
       else
       {
-console.log('not in time batch');
+//console.log('not in time batch');
       }
-       localthis.average(batchData);
-       batchData = [];
+
     });
+
+		localthis.average(startDate, batchData);
+		batchData = [];
   };
 
 };
-
 
 module.exports = heartStatistics;

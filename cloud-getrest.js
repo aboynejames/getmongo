@@ -13,7 +13,7 @@ oneHR.heartrate = 72;
         host: '',
         port: 8881,
         method: 'GET',
-        path: '/heartdata/******',
+        path: '/heartdata/',
         headers: {}
       };
 
