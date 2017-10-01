@@ -31,25 +31,34 @@ util.inherits(heartStatistics, events.EventEmitter);
 *
 */
 heartStatistics.prototype.average = function(dayStart, dayBatch) {
-
-  //sum the frequency and div   (realworld missing data gaps etc needs Data science)
-  var sum = dayBatch.reduce((a, b) => a + b, 0);
+//console.log('dayBatch array in');
+//console.log(dayBatch);
+  //sum the frequency and divu   (realworld missing data gaps etc needs Data science)
+  var sum = dayBatch.reduce(add, 0);
+	function add(a,b)	{
+		return a + b;
+	}
 console.log('average');
 console.log(sum);
   var lengthData = dayBatch.length;
 console.log('number entries per day');
 console.log(lengthData);
+	if(sum > 0 && lengthData > 0)
+	{
   var averageHRday = sum/lengthData;
+	}
+	else {
+		averageHRday = 0;
+	}
 console.log('average per 24 hours');
 console.log(averageHRday);
   var cover = lengthData/86400;
   // build JSON object using Knowledge Transaction LKN standards
   var dailyHRaverage = {};
   dailyHRaverage.daystart = dayStart;
-  dailyHRaverage.hravg = 1;//averageHRday;
+  dailyHRaverage.hravg = averageHRday;
   dailyHRaverage.cover = cover;
   // save to personal decentralize crypto storage
-	//JSONiseData = JSON.stringify(dailyHRaverage);
   this.liveMongo.insertAverageCollection(dailyHRaverage);
 
 };
@@ -61,10 +70,10 @@ console.log(averageHRday);
 */
 heartStatistics.prototype.dayBatch = function(dataIN) {
 console.log('HR DATA IN');
-console.log(dataIN);
+//console.log(dataIN);
   var localthis = this;
-  var baseDay = new Date("2017-09-26T00:00:01+0000");//Date.UTC(2017, 08, 18, 0, 0, 0));    // 18 August 2018
-  var daystoBatch = 4;
+  var baseDay = new Date("2017-08-15T00:00:01+0000");//Date.UTC(2017, 08, 18, 0, 0, 0));    // 18 August 2018
+  var daystoBatch = 50;
   var batchData = [];
   var day;
 
@@ -75,13 +84,15 @@ console.log(dataIN);
       var startDate = new Date(baseDay.getTime() + addTime);
       var stopDate = new Date(baseDay.getTime() + addTimeEnd);
       dataIN.forEach(function(hrR){
-
+//console.log(hrR);
       var din = new Date(hrR.timestamp);
-console.log(din);
+//console.log(din);
       if(din > startDate.getTime() && din < stopDate.getTime())
       {
-console.log('yes in this 24 hour period');
-          batchData.push(hrR.heartrate);
+//console.log('yes in this 24 hour period');
+					// convert to number
+					var hrnumber = parseInt(hrR.hr);
+          batchData.push(hrnumber);
       }
       else
       {

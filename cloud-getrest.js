@@ -13,7 +13,7 @@ oneHR.heartrate = 72;
         host: '',
         port: 8881,
         method: 'GET',
-        path: '/heartdata/',
+        path: '/heartdata/<token>/<id>',
         headers: {}
       };
 
@@ -37,8 +37,8 @@ res_data = '';
 console.log('any response data?');
 console.log(res_data.length);
         var cleanData = JSON.parse(res_data);
-        var chunkOne = cleanData.slice(0, 10000);
-        liveHstats.dayBatch(chunkOne);
+        //var chunkOne = cleanData.slice(0, 10000);
+        liveHstats.dayBatch(cleanData);
 		});
 
   });
