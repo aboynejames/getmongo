@@ -30,7 +30,7 @@ util.inherits(heartStatistics, events.EventEmitter);
 * @method average
 *
 */
-heartStatistics.prototype.average = function(dayStart, dayBatch) {
+heartStatistics.prototype.average = function(idIN, dayStart, dayBatch) {
 //console.log('dayBatch array in');
 //console.log(dayBatch);
   //sum the frequency and divu   (realworld missing data gaps etc needs Data science)
@@ -58,6 +58,7 @@ console.log(averageHRday);
   dailyHRaverage.daystart = dayStart;
   dailyHRaverage.hravg = averageHRday;
   dailyHRaverage.cover = cover;
+	dailyHRaverage.author = idIN;
   // save to personal decentralize crypto storage
   this.liveMongo.insertAverageCollection(dailyHRaverage);
 
@@ -70,7 +71,8 @@ console.log(averageHRday);
 */
 heartStatistics.prototype.dayBatch = function(dataIN) {
 console.log('HR DATA IN');
-//console.log(dataIN);
+//console.log(dataIN)
+	var hrauthor = '';
   var localthis = this;
   var baseDay = new Date("2017-08-15T00:00:01+0000");//Date.UTC(2017, 08, 18, 0, 0, 0));    // 18 August 2018
   var daystoBatch = 50;
@@ -93,6 +95,7 @@ console.log('HR DATA IN');
 					// convert to number
 					var hrnumber = parseInt(hrR.hr);
           batchData.push(hrnumber);
+					hrauthor = hrR.author;
       }
       else
       {
@@ -100,8 +103,8 @@ console.log('HR DATA IN');
       }
 
     });
-
-		localthis.average(startDate, batchData);
+console.log(hrauthor);
+		localthis.average(hrauthor, startDate, batchData);
 		batchData = [];
   };
 
