@@ -99,22 +99,31 @@ console.log("1 record inserted");
 *  retrieve data from a collection
 * @method retrieveCollection
 */
-mongoUtil.prototype.retrieveCollection = function (cleandata, fullpath,  response, origin) {
-
+mongoUtil.prototype.retrieveCollection = function (callBIN, startDate, annonID, cleandata, fullpath,  response, origin) {
+  var callBINlive = callBIN;
+//console.log(callBINlive);
+console.log('start date in to monogo');
+console.log(startDate);
   this.Mongolive.connect(this.murl, function(err, db) {
-;
+
     if (err) throw err;
-    var query = { device: "mio" };
+    // build a time query of the hr data
+    var endDate = new Date(startDate.getTime() + 86400000);
+    var query = { "author": annonID,  "timestamp": { $gt: startDate, $lt: endDate } };
+console.log('the uqery for moneo');
+console.log(query);
     db.collection("heartrate").find(query).toArray(function(err, result) {
+console.log(err);
       if (err) throw err;
-
+console.log(err);
       db.close();
+console.log('time query resluts');
+console.log(result);
       // return data and success to REST caller
-      response.setHeader("access-control-allow-origin", origin);
-    	response.writeHead(200, {"Content-Type": "application/json"});
-    	response.end(JSON.stringify(result));
-
-
+      //response.setHeader("access-control-allow-origin", origin);
+    	//response.writeHead(200, {"Content-Type": "application/json"});
+    	//response.end(JSON.stringify(result));
+      callBINlive(result, annonID);
     });
   });
 
@@ -127,17 +136,26 @@ mongoUtil.prototype.retrieveCollection = function (cleandata, fullpath,  respons
 mongoUtil.prototype.retrieve24hrcollection = function (cleandata, fullpath,  response, origin) {
 
   this.Mongolive.connect(this.murl, function(err, db) {
-;
-    if (err) throw err;
-    var query = {};
-    db.collection("heartrateaverage").find(query).toArray(function(err, result) {
-      if (err) throw err;
 
+    if (err) throw err;
+    var query = { "author": fullpath[3] };
+    db.collection("heartrateaverage").find(query).toArray(function(err, result) {
+console.log(err);
+      if (err) throw err;
       db.close();
+      // last or whole list of averages
+      if(fullpath[3] == 'last')
+      {
+        returnData = result.slice(-1);
+      }
+      else {
+        returnData = result;
+      }
       // return data and success to REST caller
       response.setHeader("access-control-allow-origin", origin);
     	response.writeHead(200, {"Content-Type": "application/json"});
-    	response.end(JSON.stringify(result));
+    	response.end(JSON.stringify(returnData));
+
     });
   });
 
