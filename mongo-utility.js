@@ -82,11 +82,28 @@ mongoUtil.prototype.insertAverageCollection = function (dataIN) {
 
   this.Mongolive.connect(this.murl, function(err, db) {
     if (err) throw err;
-console.log(dataIN);
     var myobj = dataIN;//{ daystart: "UTC", hravg: "73", cover: 79% };
-console.log('whats to be saved in monogo average');
-console.log(myobj);
+
     db.collection("heartrateaverage").insertOne(myobj, function(err, res) {
+      if (err) throw err;
+console.log("1 record inserted");
+      db.close();
+    });
+  });
+
+};
+
+/**
+*  insert data into a collection  individual Average
+* @method insertNetworkAverageCollection
+*/
+mongoUtil.prototype.insertNetworkAverageCollection = function (dataIN) {
+
+  this.Mongolive.connect(this.murl, function(err, db) {
+    if (err) throw err;
+    var myobj = dataIN;//{ daystart: "UTC", hravg: "73", cover: 79% };
+
+    db.collection("heartratenetworkaverage").insertOne(myobj, function(err, res) {
       if (err) throw err;
 console.log("1 record inserted");
       db.close();
@@ -100,29 +117,18 @@ console.log("1 record inserted");
 * @method retrieveCollection
 */
 mongoUtil.prototype.retrieveCollection = function (callBIN, startDate, annonID, cleandata, fullpath,  response, origin) {
-  var callBINlive = callBIN;
-//console.log(callBINlive);
-console.log('start date in to monogo');
-console.log(startDate);
+
   this.Mongolive.connect(this.murl, function(err, db) {
 
     if (err) throw err;
     // build a time query of the hr data
     var endDate = new Date(startDate.getTime() + 86400000);
     var query = { "author": annonID,  "timestamp": { $gt: startDate, $lt: endDate } };
-console.log('the uqery for moneo');
-console.log(query);
+
     db.collection("heartrate").find(query).toArray(function(err, result) {
 console.log(err);
       if (err) throw err;
-console.log(err);
       db.close();
-console.log('time query resluts');
-console.log(result);
-      // return data and success to REST caller
-      //response.setHeader("access-control-allow-origin", origin);
-    	//response.writeHead(200, {"Content-Type": "application/json"});
-    	//response.end(JSON.stringify(result));
       callBINlive(result, annonID);
     });
   });
@@ -133,7 +139,7 @@ console.log(result);
 *  retrieve data from a collection
 * @method retrieve24hrcollection
 */
-mongoUtil.prototype.retrieve24hrcollection = function (cleandata, fullpath,  response, origin) {
+mongoUtil.prototype.retrieve24hrcollection = function (callBINlive, genesisTime, annonID, cleandata, fullpath,  response, origin) {
 
   this.Mongolive.connect(this.murl, function(err, db) {
 
@@ -144,17 +150,15 @@ console.log(err);
       if (err) throw err;
       db.close();
       // last or whole list of averages
-      if(fullpath[3] == 'last')
+      if(fullpath[4] == 'last')
       {
         returnData = result.slice(-1);
       }
       else {
         returnData = result;
       }
-      // return data and success to REST caller
-      response.setHeader("access-control-allow-origin", origin);
-    	response.writeHead(200, {"Content-Type": "application/json"});
-    	response.end(JSON.stringify(returnData));
+      // return to call back
+        callBINlive(returnData, annonID);
 
     });
   });

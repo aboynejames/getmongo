@@ -52,7 +52,6 @@ heartStatistics.prototype.average = function(idIN, dayStart, dayBatch) {
 heartStatistics.prototype.averagePrepared = function(IDin, averageIN, dayStart, dayBatch) {
 
 	  var lengthData = dayBatch.length;
-
 		if(averageIN > 0 && lengthData > 0)
 		{
 	  var averageHRday = averageIN/lengthData;
@@ -60,16 +59,15 @@ heartStatistics.prototype.averagePrepared = function(IDin, averageIN, dayStart, 
 		else {
 			averageHRday = 0;
 		}
-
-	  var cover = lengthData/86400;
+	  var cover = lengthData/2;
 	  // build JSON object using Knowledge Transaction LKN standards
 	  var dailyHRaverage = {};
 	  dailyHRaverage.daystart = dayStart;
-	  dailyHRaverage.hravg = averageHRday;
+	  dailyHRaverage.nhravg = averageHRday;
 	  dailyHRaverage.cover = cover;
-		dailyHRaverage.author = IDin;
+		dailyHRaverage.author = 2;
 	  // save to personal decentralize crypto storage
-	  this.liveMongo.insertAverageCollection(dailyHRaverage);
+	  this.liveMongo.insertNetworkAverageCollection(dailyHRaverage);
 
 };
 

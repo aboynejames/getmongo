@@ -20,7 +20,7 @@ var callBackIN;
 
 var LKNtime = '';
 // simulate LKN CSC
-setInterval(totalCode, 8640);
+setInterval(totalCode, secondsinDay);
 
 function totalCode (){
 
